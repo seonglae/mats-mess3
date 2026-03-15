@@ -231,6 +231,92 @@ def plot_layer_probing(layer_results: dict, exp_dir, components: list):
     plt.close(fig)
 
 
+def analyze_attention_patterns(
+    model,
+    components: list[tuple[float, float]],
+    seq_length: int,
+    n_samples: int = 2000,
+    device: str = "cuda",
+    exp_dir=None,
+):
+    """Analyze attention patterns for source discrimination.
+
+    Do attention heads specialize for meta-synchronization (attending to
+    early positions most informative for component identification)?
+    """
+    import torch
+    from .mess3 import generate_mess3_sequences_fast
+
+    rng = np.random.default_rng(456)
+    K = len(components)
+    per_comp = n_samples // K
+
+    all_tokens = []
+    all_labels = []
+    for k, (alpha, x_param) in enumerate(components):
+        tokens, _ = generate_mess3_sequences_fast(alpha, x_param, per_comp, seq_length, rng)
+        all_tokens.append(tokens)
+        all_labels.append(np.full(per_comp, k))
+
+    tokens = np.concatenate(all_tokens)
+    labels = np.concatenate(all_labels)
+    bos = np.zeros((len(tokens), 1), dtype=np.int64)
+    input_ids = torch.tensor(np.concatenate([bos, tokens + 1], axis=1), dtype=torch.long).to(device)
+
+    # Extract attention patterns
+    attn_patterns = {}
+    def make_hook(name):
+        def fn(value, hook):
+            attn_patterns[name] = value.detach().cpu().numpy()
+        return fn
+
+    hooks = []
+    n_layers = model.cfg.n_layers
+    for l in range(n_layers):
+        name = f"blocks.{l}.attn.hook_pattern"
+        hooks.append((name, make_hook(name)))
+
+    model.eval()
+    with torch.no_grad():
+        # Process in batches
+        all_patterns = {}
+        bsz = 256
+        for i in range(0, len(input_ids), bsz):
+            attn_patterns = {}
+            batch = input_ids[i:i+bsz]
+            model.run_with_hooks(batch, fwd_hooks=hooks)
+            for name, pat in attn_patterns.items():
+                if name not in all_patterns:
+                    all_patterns[name] = []
+                all_patterns[name].append(pat)
+
+        for name in all_patterns:
+            all_patterns[name] = np.concatenate(all_patterns[name])
+
+    # Visualize attention patterns per layer (averaged)
+    fig, axes = plt.subplots(1, n_layers, figsize=(5 * n_layers, 4))
+    if n_layers == 1:
+        axes = [axes]
+
+    for l in range(n_layers):
+        name = f"blocks.{l}.attn.hook_pattern"
+        if name in all_patterns:
+            # Average over batch and heads: (seq, seq)
+            avg_pattern = all_patterns[name].mean(axis=(0, 1))
+            axes[l].imshow(avg_pattern, cmap="Blues", aspect="auto")
+            axes[l].set_xlabel("Key Position")
+            axes[l].set_ylabel("Query Position")
+            axes[l].set_title(f"Layer {l} Avg Attention")
+
+    fig.suptitle("Attention Patterns")
+    fig.tight_layout()
+    if exp_dir:
+        fig.savefig(exp_dir / "figures" / "attention_patterns.png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    return all_patterns, labels
+
+
 def run_sync_analysis(
     all_activations: dict[str, np.ndarray],
     raw_tokens: np.ndarray,
@@ -238,6 +324,8 @@ def run_sync_analysis(
     labels: np.ndarray,
     exp_dir,
     n_layers: int,
+    model=None,
+    device: str = "cuda",
 ):
     """Run full synchronization dynamics analysis."""
     print("\n--- Synchronization Dynamics Analysis ---")
@@ -254,6 +342,12 @@ def run_sync_analysis(
     print("Layer-wise probing...")
     layer_results = layer_wise_probing(all_activations, raw_tokens, components, labels)
     plot_layer_probing(layer_results, exp_dir, components)
+
+    # Attention pattern analysis
+    if model is not None:
+        print("Attention pattern analysis...")
+        seq_length = raw_tokens.shape[1]
+        analyze_attention_patterns(model, components, seq_length, n_samples=2000, device=device, exp_dir=exp_dir)
 
     # Save results
     import json
