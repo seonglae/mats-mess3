@@ -1,0 +1,19 @@
+[project]
+name = "mats-mess3"
+version = "0.1.0"
+description = "MATS Work Test: Non-ergodic Mess3 transformer experiment"
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.0",
+    "transformer-lens>=2.0",
+    "transformers<5",
+    "numpy",
+    "matplotlib",
+    "scikit-learn",
+    "einops",
+    "tqdm",
+    "jaxtyping",
+]
+
+[tool.uv]
+python-preference = "managed"
