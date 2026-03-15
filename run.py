@@ -532,8 +532,8 @@ def main():
         n_heads=4,
         seq_length=16,
         batch_size=8192,
-        n_steps=20000,
-        pca_every=2000,
+        n_steps=10000,
+        pca_every=1000,
     )
 
     # Phase 2: Non-ergodic mixture (3 well-separated components)
@@ -543,7 +543,7 @@ def main():
     train_and_analyze(
         components=[
             (0.95, 0.03),  # Very clear, very persistent (H=0.34, zeta=0.91)
-            (0.85, 0.05),  # Standard Mess3 (H=0.61, zeta=0.85)
+            (0.85, 0.05),  # Standard Mess3 (H=0.69, zeta=0.85)
             (0.65, 0.15),  # Moderate (H=0.97, zeta=0.55)
         ],
         exp_name="phase2_nonergodic_3comp",
@@ -552,8 +552,8 @@ def main():
         n_heads=4,
         seq_length=16,
         batch_size=8192,
-        n_steps=50000,
-        pca_every=5000,
+        n_steps=20000,
+        pca_every=2000,
     )
 
 
