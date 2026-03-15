@@ -1,0 +1,16 @@
+\section{Introduction}
+
+Language models encounter fundamentally non-ergodic data: different documents, styles, and topics constitute distinct statistical regimes. A model must perform in-context learning---using early tokens to identify the active regime---before it can predict optimally. This dual inference problem, identifying the process and tracking state within it, is central to how transformers operate in practice.
+
+We study this problem in a controlled setting using Mess3 processes \cite{marzen2017nearly, shai2024transformers}, 3-state nonunifilar HMMs whose belief state geometry forms a Sierpinski gasket. By constructing a non-ergodic training set where each sequence comes from one of $K$ Mess3 parameterizations, we create a minimal model of the in-context learning problem: the transformer must determine which process generated the sequence and simultaneously track its hidden state.
+
+This connects directly to the Factored World Hypothesis \cite{shai2026factored}: if the transformer treats component identity and within-component belief as independent factors, it should represent them in orthogonal subspaces with total dimensionality $(K-1) + 2 = K+1$, rather than the joint $3K - 1$ dimensions. However, the non-ergodic mixture is \emph{not} conditionally independent in the tensor-product sense---the joint transition operator is block-diagonal, not a tensor product. This creates a theoretically interesting intermediate case between the fully factored and fully joint regimes.
+
+The residual stream serves as a communication channel between layers, with no privileged basis \cite{elhage2022superposition}. Information persists in subspaces unless actively deleted, and layers interact by reading from and writing to overlapping subspaces. This perspective makes the question of \emph{how many dimensions} the model uses---and \emph{how} it organizes them---a direct probe of its internal world model.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+    \item We formalize the non-ergodic Mess3 mixture as a hierarchical belief problem and derive predictions for the activation geometry (\S\ref{sec:predictions}).
+    \item We verify single-process belief geometry ($R^2 = 0.989$), then analyze the non-ergodic mixture, comparing model performance against the Bayes-optimal predictor at each context position (\S\ref{sec:results}).
+    \item We analyze synchronization dynamics: how quickly the model identifies the active component, and how this interacts with within-component belief tracking (\S\ref{sec:additional}).
+\end{enumerate}

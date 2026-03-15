@@ -1,0 +1,53 @@
+\begin{thebibliography}{8}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Elhage et~al.(2022)}]{elhage2022superposition}
+Nelson Elhage and 1 others. 2022.
+\newblock Toy models of superposition.
+\newblock \emph{arXiv preprint arXiv:2209.10652}.
+
+\bibitem[{Marzen and Crutchfield(2017)}]{marzen2017nearly}
+Sarah~E Marzen and James~P Crutchfield. 2017.
+\newblock Nearly maximally predictive features and their dimensions.
+\newblock \emph{Physical Review E}, 95(5):051301.
+
+\bibitem[{Nanda and Bloom(2022)}]{nanda2022transformerlens}
+Neel Nanda and Joseph Bloom. 2022.
+\newblock \href {https://github.com/TransformerLensOrg/TransformerLens}
+  {Transformerlens}.
+
+\bibitem[{Olsson et~al.(2022)}]{olsson2022context}
+Catherine Olsson and 1 others. 2022.
+\newblock In-context learning and induction heads.
+\newblock \emph{Transformer Circuits Thread}.
+
+\bibitem[{Piotrowski et~al.(2025)Piotrowski, Riechers, Filan, and
+  Shai}]{piotrowski2025constrained}
+Maciej Piotrowski, Paul~M Riechers, Daniel Filan, and Adam~S Shai. 2025.
+\newblock Constrained belief updates explain geometric structures in
+  transformer representations.
+\newblock \emph{arXiv preprint arXiv:2502.01954}.
+
+\bibitem[{Riechers and Crutchfield(2018)}]{riechers2018spectral}
+Paul~M Riechers and James~P Crutchfield. 2018.
+\newblock Spectral simplicity of apparent complexity, {I}: The
+  nondiagonalizable metadynamics of prediction.
+\newblock \emph{Chaos}, 28(3):033115.
+
+\bibitem[{Shai et~al.(2026)Shai, Amdahl-Culleton, Christensen, Bigelow, Rosas,
+  Boyd, Alt, Ray, and Riechers}]{shai2026factored}
+Adam Shai, Loren Amdahl-Culleton, Casper~L Christensen, Henry~R Bigelow,
+  Fernando~E Rosas, Alexander~B Boyd, Eric~A Alt, Kyle~J Ray, and Paul~M
+  Riechers. 2026.
+\newblock Transformers learn factored representations.
+\newblock \emph{arXiv preprint arXiv:2602.02385}.
+
+\bibitem[{Shai et~al.(2024)Shai, Marzen, Teixeira, Oldenziel, and
+  Riechers}]{shai2024transformers}
+Adam~S Shai, Sarah~E Marzen, Lucas Teixeira, Alexander~G Oldenziel, and Paul~M
+  Riechers. 2024.
+\newblock Transformers represent belief state geometry in their residual
+  stream.
+\newblock In \emph{NeurIPS}.
+
+\end{thebibliography}

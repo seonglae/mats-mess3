@@ -1,0 +1,40 @@
+\section{Results}
+\label{sec:results}
+
+\subsection{Phase 1: Single Mess3 Verification}
+
+Before analyzing the non-ergodic mixture, we verify that our setup reproduces the known result: a transformer trained on a single Mess3 process ($\alpha = 0.85$, $x = 0.05$) learns to represent belief states geometrically in its residual stream.
+
+\paragraph{Training.} The model (3 layers, $d_{\text{model}} = 64$) was trained for 10K steps. The training loss converged to $\sim 0.81$ nats, compared to the entropy rate $H = 0.69$ nats and the uniform baseline $\ln 3 = 1.10$ nats. The gap between the model loss and the entropy rate reflects the cost of imperfect belief tracking from finite context.
+
+\paragraph{Belief regression.} Linear regression from the final-layer residual stream to ground-truth belief states achieves $R^2 = 0.989$ (RMSE $= 0.043$). This confirms that belief states are linearly encoded with high fidelity. The $R^2$ improves monotonically across layers: $L0 = 0.984$, $L1 = 0.987$, $L2 = 0.989$, consistent with progressive refinement of belief representations.
+
+\paragraph{Geometry.} Figure~\ref{fig:phase1_gasket} shows the ground-truth Sierpinski gasket alongside the geometry recovered by linear regression from the residual stream. The fractal structure is clearly visible in both, confirming that the transformer has learned to represent the belief state geometry.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{belief_gaskets.png}
+\caption{Single Mess3 ($\alpha = 0.85$, $x = 0.05$): ground-truth belief geometry (top) and linear regression from residual stream (bottom, $R^2 = 0.947$ at last position only). The Sierpinski gasket structure is clearly recovered.}
+\label{fig:phase1_gasket}
+\end{figure}
+
+\paragraph{Dimensionality.} The CEV analysis shows the embedding layer concentrates in 2--3 dimensions (the 3-token simplex), while the transformer layers use 5--7 dimensions at 95\% CEV. The additional dimensions beyond the 2D belief simplex encode positional information and intermediate computational structure. Over training, the effective dimensionality decreases monotonically from 17 to 7 (Figure~\ref{fig:phase1_cev}).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\textwidth]{cev_over_training.png}
+\caption{Left: CEV curves at different training steps, showing progressive concentration. Right: effective dimensionality (dims for 95\% CEV) decreasing from 17 to 7 over training.}
+\label{fig:phase1_cev}
+\end{figure}
+
+\subsection{Phase 2: Non-Ergodic Mixture}
+
+\textit{[Results to be filled after Phase 2 experiment completion. Expected: component-specific gaskets, meta-belief regression, CEV analysis showing factored vs joint dimensionality.]}
+
+\subsubsection{Training Dynamics}
+
+\subsubsection{Dimensionality Analysis}
+
+\subsubsection{Belief Regression}
+
+\subsubsection{Per-Position Loss vs Bayes-Optimal}
