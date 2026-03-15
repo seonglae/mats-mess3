@@ -486,6 +486,11 @@ def train_and_analyze(
     fig.savefig(exp_dir / "figures" / "dims_by_position.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
 
+    # Synchronization dynamics (additional analysis)
+    if K > 1:
+        from src.sync_analysis import run_sync_analysis
+        run_sync_analysis(all_acts, raw_tokens, components, labels, exp_dir, n_layers)
+
     print(f"\nDone! Results in {exp_dir}")
     return model, exp_dir
 
