@@ -1,39 +1,20 @@
 \section{Additional Analysis: Synchronization Dynamics}
 \label{sec:additional}
 
-We analyze the \emph{synchronization dynamics} of the transformer: how quickly and through which mechanism does the model identify the active component? This analysis is motivated by the view that in-context learning is fundamentally source discrimination in non-ergodic data.
+We analyze \emph{synchronization dynamics}: how the model identifies the active component and when this precedes belief refinement.
 
-\subsection{Motivation}
+\paragraph{Motivation.} The model faces two tasks with different computational requirements: meta-synchronization (comparing accumulated statistics via likelihood ratios in log-probability space) and within-component belief tracking (constrained Bayesian updates~\cite{piotrowski2025constrained}). We probe each independently.
 
-In the non-ergodic mixture, the model faces a hierarchical inference problem at each sequence:
-\begin{enumerate}
-    \item \textbf{Meta-synchronization}: Determine which Mess3 component generated this sequence.
-    \item \textbf{Within-component belief tracking}: Given the component, track the belief state over hidden states.
-\end{enumerate}
-These two tasks have different computational requirements. Meta-synchronization requires comparing accumulated token statistics against learned priors for each component---a multiplicative (likelihood-ratio) computation in log-probability space. Within-component belief tracking requires the constrained Bayesian update described in~\cite{piotrowski2025constrained}.
+\subsection{Position-wise probing} At each context position $t$, we train linear probes for (a) meta-belief $P(k \mid z_{1:t})$ and (b) within-component belief $P(s \mid k, z_{1:t})$ from the final-layer residual stream.
 
-We probe each task independently to understand when and where each representation emerges.
+\textit{[Results to be filled: R$^2$ curves by position.]}
 
-\subsection{Meta-Belief Accuracy by Position}
+\subsection{Layer-wise probing} At each layer, we independently probe for component identity and belief state, revealing the order of representation construction.
 
-We train separate linear probes at each context position $t$ to predict (a) the meta-belief $P(k \mid z_{1:t})$ and (b) the within-component belief $P(s \mid k, z_{1:t})$ from the final-layer residual stream.
+\textit{[Results to be filled: per-layer R$^2$.]}
 
-\textit{[Results to be filled: R$^2$ curves showing meta-belief accuracy increasing with position, expected to be faster for well-separated components.]}
+\subsection{Attention patterns} We examine whether specific heads specialize for meta-synchronization (broad attention for evidence gathering) vs.\ belief updating (local attention).
 
-\subsection{Layer-Wise Probing}
+\textit{[Results to be filled.]}
 
-At each layer, we independently probe for component identity and within-component belief state.
-
-\textit{[Results to be filled: R$^2$ at each layer for meta-belief vs within-component belief. Expected: meta-belief emerges earlier than belief refinement.]}
-
-\subsection{Attention Pattern Analysis}
-
-We examine the average attention patterns across layers to determine whether specific heads or positions are specialized for meta-synchronization.
-
-\textit{[Results to be filled: attention heatmaps. Expected: early-layer heads attend broadly (gathering evidence for source discrimination), later-layer heads attend more locally (for belief updating).]}
-
-\subsection{Connection to In-Context Learning}
-
-The synchronization dynamics we observe provide a concrete mechanistic account of in-context learning: the model first identifies the active source (analogous to topic/style identification in natural language), then conditions its predictions on this inferred source identity. This two-phase structure---source identification followed by conditioned prediction---may be a universal computational motif in sequence models trained on non-ergodic data.
-
-The per-position loss curve, when compared against the Bayes-optimal baseline, quantifies the ``synchronization gap'': the additional prediction error incurred by imperfect source identification and belief tracking.
+\subsection{Connection to ICL} This provides a concrete mechanistic account: the model first identifies the source, then conditions predictions on it. The per-position loss curve against the Bayes-optimal baseline quantifies the ``synchronization gap'' from imperfect source identification.
