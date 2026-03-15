@@ -235,7 +235,7 @@ def train_and_analyze(
     hooks = []
     def make_hook(name):
         def fn(value, hook):
-            activations[name] = value.cpu().numpy()
+            activations[name] = value.detach().cpu().numpy()
         return fn
 
     hooks.append(("hook_embed", make_hook("hook_embed")))
@@ -503,7 +503,7 @@ def _quick_pca(model, components, seq_length, d_model, n_layers, n_samples=2000)
     last = f"blocks.{n_layers-1}.hook_resid_post"
     activations = {}
     def hook_fn(value, hook):
-        activations["a"] = value.cpu().numpy()
+        activations["a"] = value.detach().cpu().numpy()
 
     model.run_with_hooks(input_ids, fwd_hooks=[(last, hook_fn)])
     X = activations["a"][:, 1:, :].reshape(-1, d_model)

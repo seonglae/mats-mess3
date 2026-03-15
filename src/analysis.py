@@ -32,7 +32,7 @@ def extract_activations(
 
     def make_hook(name):
         def hook_fn(value, hook):
-            activations[name] = value.cpu().numpy()
+            activations[name] = value.detach().cpu().numpy()
         return hook_fn
 
     hooks = []
