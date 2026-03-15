@@ -21,6 +21,7 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import Ridge
 from sklearn.metrics import r2_score
 
+from src.bayes_optimal import bayes_optimal_loss_mixture, bayes_optimal_loss_single
 from src.mess3 import (
     compute_belief_states,
     compute_meta_beliefs,
@@ -122,6 +123,19 @@ def train_and_analyze(
         zeta = 1 - 3 * x_param
         print(f"  C{k} (a={alpha}, x={x_param}): H={H:.4f} nats, zeta={zeta:.2f}")
     print(f"Uniform CE: {np.log(3):.4f} nats")
+
+    # Compute Bayes-optimal loss (theoretical minimum)
+    print("Computing Bayes-optimal loss...")
+    if len(components) == 1:
+        bayes_per_pos = bayes_optimal_loss_single(components[0][0], components[0][1], seq_length)
+        bayes_info = {"oracle_per_pos": bayes_per_pos.tolist(), "oracle_avg": float(bayes_per_pos.mean())}
+    else:
+        bayes_info = bayes_optimal_loss_mixture(components, seq_length, n_samples_per_comp=5000)
+        bayes_info = {k: v.tolist() if isinstance(v, np.ndarray) else v for k, v in bayes_info.items()}
+    print(f"  Bayes-optimal avg CE: {bayes_info.get('oracle_avg', bayes_info.get('bayesian_avg', '?')):.4f}")
+    if "bayesian_avg" in bayes_info:
+        print(f"  Bayesian (with meta-inference) avg CE: {bayes_info['bayesian_avg']:.4f}")
+
     print(f"Device: {DEVICE}")
     print(f"{'='*60}\n")
 
@@ -178,11 +192,28 @@ def train_and_analyze(
                 print(f"    -> PCA dims@95%: {pca_data['n95']}")
             model.train()
 
+    # Per-position loss at end of training
+    model.eval()
+    with torch.no_grad():
+        eval_ids, _, _ = generate_batch(4096, seq_length, components, np.random.default_rng(777))
+        eval_ids = eval_ids.to(DEVICE)
+        logits_eval = model(eval_ids)
+        per_pos_losses = []
+        for t in range(seq_length):
+            ce = torch.nn.functional.cross_entropy(logits_eval[:, t, :], eval_ids[:, t + 1]).item()
+            per_pos_losses.append(ce)
+        print(f"  Per-position loss: {[f'{l:.3f}' for l in per_pos_losses]}")
+    model.train()
+
     # Save metrics
     with open(exp_dir / "metrics.json", "w") as f:
         json.dump(metrics, f)
     with open(exp_dir / "pca_history.json", "w") as f:
         json.dump([{k: v.tolist() if isinstance(v, np.ndarray) else v for k, v in e.items()} for e in pca_history], f)
+    with open(exp_dir / "bayes_optimal.json", "w") as f:
+        json.dump(bayes_info, f, indent=2)
+    with open(exp_dir / "per_position_loss.json", "w") as f:
+        json.dump(per_pos_losses, f)
 
     # ---- Plot training loss ----
     fig, ax = plt.subplots(figsize=(8, 4))
@@ -197,6 +228,29 @@ def train_and_analyze(
     ax.legend(fontsize=8)
     fig.tight_layout()
     fig.savefig(exp_dir / "figures" / "training_loss.png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    # ---- Plot per-position loss vs Bayes-optimal ----
+    fig, ax = plt.subplots(figsize=(8, 5))
+    positions = list(range(1, seq_length + 1))
+    ax.plot(positions, per_pos_losses, "ko-", markersize=4, label="Model")
+
+    if "oracle_per_pos" in bayes_info:
+        oracle = bayes_info["oracle_per_pos"]
+        if isinstance(oracle, dict):
+            oracle = list(oracle.values())
+        ax.plot(positions, oracle, "b--", label="Bayes-optimal (oracle)")
+    if "bayesian_per_pos" in bayes_info:
+        bayesian = bayes_info["bayesian_per_pos"]
+        ax.plot(positions, bayesian, "r--", label="Bayes-optimal (meta-inference)")
+
+    ax.axhline(y=np.log(3), color="gray", linestyle=":", alpha=0.5, label="Uniform")
+    ax.set_xlabel("Context Position")
+    ax.set_ylabel("Cross-Entropy (nats)")
+    ax.set_title(f"Per-Position Loss vs Bayes-Optimal - {exp_name}")
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(exp_dir / "figures" / "per_position_loss.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     # ---- Plot CEV over training ----
@@ -489,7 +543,7 @@ def train_and_analyze(
     # Synchronization dynamics (additional analysis)
     if K > 1:
         from src.sync_analysis import run_sync_analysis
-        run_sync_analysis(all_acts, raw_tokens, components, labels, exp_dir, n_layers)
+        run_sync_analysis(all_acts, raw_tokens, components, labels, exp_dir, n_layers, model=model, device=DEVICE)
 
     print(f"\nDone! Results in {exp_dir}")
     return model, exp_dir
