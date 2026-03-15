@@ -3,55 +3,24 @@
 
 \subsection{Mathematical Derivation}
 
-The joint state space of the non-ergodic mixture is $(k, s) \in \{1,\ldots,K\} \times \{1,2,3\}$, with $3K$ total states. Since component identity $k$ is fixed within each sequence, the predictive vector factorizes:
+The joint state space $(k, s) \in \{1,\ldots,K\} \times \{1,2,3\}$ has $3K$ states. Since component identity $k$ is fixed within each sequence, the predictive vector factorizes:
 \begin{equation}
     P(k, s \mid z_{1:t}) = P(k \mid z_{1:t}) \cdot P(s \mid k, z_{1:t})
 \end{equation}
-where $P(k \mid z_{1:t})$ is the \emph{meta-belief} (posterior over components) and $P(s \mid k, z_{1:t})$ is the \emph{within-component belief state}.
+The meta-belief $P(k \mid z_{1:t})$ is the posterior over components; $P(s \mid k, z_{1:t})$ is the within-component belief. The joint transition operator is block-diagonal $T^{(z)} = \bigoplus_k P(k) T_k^{(z)}$, which is \emph{not} a tensor product, so the standard FWH does not directly apply. However, $k$ is static, so after sufficient context $P(k \mid z_{1:t})$ concentrates on the true component, reducing to the single-component case.
 
-The joint transition operator is block-diagonal:
-\begin{equation}
-    T^{(z)} = \bigoplus_{k=1}^K P(k) \cdot T_k^{(z)}
-\end{equation}
-This is \emph{not} a tensor product $\bigotimes_n T_n^{(z)}$, so the standard conditionally-independent factored representation from~\cite{shai2026factored} does not directly apply. However, the structure admits a natural factorization because $k$ is static: after sufficient context, $P(k \mid z_{1:t})$ concentrates on the true component, and the predictive vector effectively reduces to the single-component case.
-
-\paragraph{Meta-belief update.} The posterior over components evolves as:
-\begin{equation}
-    P(k \mid z_{1:t}) \propto P(k) \prod_{\tau=1}^{t} P(z_\tau \mid z_{1:\tau-1}, k)
-\end{equation}
-where $P(z_\tau \mid z_{1:\tau-1}, k) = \veta_k^{(z_{1:\tau-1})} T_k^{(z_\tau)} \mathbf{1}$ is the predictive probability under component $k$. The rate at which the meta-belief concentrates depends on the KL divergence between component predictive distributions---larger divergences enable faster source discrimination.
+The meta-belief evolves as $P(k \mid z_{1:t}) \propto P(k) \prod_{\tau=1}^{t} P(z_\tau \mid z_{1:\tau-1}, k)$, where concentration rate depends on the KL divergence between component distributions.
 
 \subsection{Geometric Predictions}
 
-\paragraph{Prediction 1: Dimensionality.}
-We predict the effective dimensionality of the residual stream representation should be approximately $K + 1$ under a factored representation:
-\begin{itemize}
-    \item $(K-1)$ dimensions for the meta-belief simplex over $K$ components
-    \item $2$ dimensions for within-component belief (the 2-simplex shared across components)
-\end{itemize}
-For $K = 3$: factored prediction is $4$ dimensions. The joint alternative requires $3K - 1 = 8$ dimensions. Separated gaskets would use $\sim 2K = 6$ dimensions.
+\paragraph{Prediction 1: Dimensionality.} Under factored representation: $(K-1)$ dims for the meta-belief simplex + $2$ dims for within-component belief = $K+1$ total. For $K=3$: factored $= 4$ dims, joint $= 8$ dims, separated gaskets $\approx 6$ dims.
 
-\paragraph{Prediction 2: Context-position dependence.}
-At position $t = 1$, the meta-belief is near-uniform: all components are equally plausible. The geometry should resemble a superposition of $K$ overlapping gaskets. As $t$ increases, the meta-belief sharpens, and the geometry should resolve into component-specific clusters, each containing its own gasket structure. We expect the per-position loss to decrease with context, approaching the Bayes-optimal rate, with the rate of decrease governed by the KL divergence between components.
+\paragraph{Prediction 2: Context-position dependence.} At $t=1$, meta-belief is near-uniform: geometry is a superposition of $K$ gaskets. As $t$ increases, meta-belief sharpens, geometry resolves into component-specific clusters. Per-position loss should decrease toward the Bayes-optimal rate, governed by inter-component KL divergence.
 
-\paragraph{Prediction 3: Layer dependence.}
-Based on the layer-by-layer belief construction observed in~\cite{shai2024transformers}:
-\begin{itemize}
-    \item \textbf{Embedding}: 3 points (one per token), no component or belief structure.
-    \item \textbf{Early layers}: Component discrimination should emerge first---the model identifies which source is active by comparing token statistics against learned priors.
-    \item \textbf{Later layers}: Within-component gasket structure should sharpen as the model refines its belief state conditioned on the identified component.
-\end{itemize}
-This ordering reflects the computational dependency: you must know \emph{which} process to use the \emph{right} transition matrices for belief updating.
+\paragraph{Prediction 3: Layer dependence.} Embedding: 3 token vertices. Early layers: component discrimination emerges (meta-synchronization). Later layers: within-component gasket structure sharpens. This ordering reflects computational dependency: you must identify the process before applying the correct transition matrices.
 
 \subsection{Geometric Intuition}
 
-Multiple geometries are conceivable:
-\begin{enumerate}
-    \item \textbf{Separated gaskets}: $K$ distinct Sierpinski gaskets in different regions of activation space, with large offsets encoding component identity. Total: $\sim 2K$ dimensions.
-    \item \textbf{Factored (shared belief subspace)}: Component identity in a $(K-1)$-dimensional subspace, with all gaskets superimposed in a shared 2D belief subspace. Total: $K+1$ dimensions. This is the strongest form of factoring.
-    \item \textbf{Conditional (component-specific belief subspaces)}: Each component gets its own 2D belief subspace with different orientations, plus a shared component-identity subspace. Total: $2K + (K-1)$ dimensions.
-\end{enumerate}
+Three conceivable geometries: (1) \textbf{Separated gaskets}: $K$ distinct gaskets with large offsets ($\sim 2K$ dims). (2) \textbf{Factored}: component identity in $(K{-}1)$D, shared 2D belief subspace with superimposed gaskets ($K{+}1$ dims). (3) \textbf{Conditional}: component-specific 2D belief subspaces ($2K{+}K{-}1$ dims).
 
-Our formal prediction favors geometries 1 or 2. Geometry 1 is natural given the block-diagonal (not tensor-product) structure. Geometry 2 would be evidence that the factoring inductive bias extends beyond the conditionally-independent case to block-diagonal generators.
-
-We will not be surprised if the model initially learns geometry 1 and transitions toward geometry 2 over training, following the inductive bias toward dimensional efficiency observed in~\cite{shai2026factored}.
+We predict geometry 1 or 2. Geometry 2 would extend the factoring inductive bias beyond conditionally-independent processes. We expect the model may initially learn geometry 1, transitioning toward 2 over training as in~\cite{shai2026factored}.

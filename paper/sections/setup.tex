@@ -2,9 +2,9 @@
 
 \subsection{Construction}
 
-We construct a training set of $K$ Mess3 processes with distinct parameters $\{(\alpha_k, x_k)\}_{k=1}^K$. Each training sequence is generated entirely by one component, chosen uniformly at random. The model observes only the token sequence---the component identity is latent.
+We construct $K$ Mess3 processes with distinct parameters $\{(\alpha_k, x_k)\}_{k=1}^K$. Each training sequence is generated entirely by one component chosen uniformly; the model observes only tokens, not the component identity.
 
-\paragraph{Component selection.} We choose components with well-separated entropy rates $H_k$ and spectral gaps $\zeta_k = 1 - 3x_k$ to ensure meaningfully different dynamics:
+We choose components with well-separated entropy rates $H_k$ and spectral gaps $\zeta_k = 1-3x_k$:
 
 \begin{table}[h]
 \centering
@@ -18,28 +18,21 @@ C1 & 0.85 & 0.05 & 0.69 & 0.85 \\
 C2 & 0.65 & 0.15 & 1.03 & 0.55 \\
 \bottomrule
 \end{tabular}
-\caption{Mess3 components used in the non-ergodic mixture. $H_k$ is the entropy rate (theoretical minimum CE), $\zeta_k$ is the spectral gap controlling belief convergence rate.}
+\caption{Mess3 components. $H_k$: entropy rate (minimum CE). $\zeta_k$: spectral gap (belief convergence rate). C0 is highly predictable with slow mixing; C2 is nearly uniform with fast mixing.}
 \label{tab:components}
 \end{table}
-
-C0 is highly predictable with slow mixing; C2 is nearly uniform with fast mixing. This ensures the components are distinguishable from their token statistics, while spanning a range of predictive difficulty.
 
 \subsection{Relevance to Language Models}
 \label{sec:relevance}
 
-The non-ergodic structure mirrors key properties of natural language:
-\begin{itemize}
-    \item \textbf{In-context learning as source discrimination}: Each sequence begins with ambiguity about which regime is active. The model must use early tokens to identify the generating process---analogous to how LLMs adapt to document topic, style, or task from context.
-    \item \textbf{Covariate shift}: Different components produce different token distributions, so the model faces a covariate shift across sequences. The model must be robust to this shift, adapting its predictions in-context rather than relying on a single fixed strategy.
-    \item \textbf{Hierarchical structure}: Natural language has latent structure at multiple scales (topic, syntax, discourse). The component/state hierarchy in our setup is a minimal model of this: component identity is a slow variable (constant within a sequence), while hidden state is a fast variable (evolving at each token).
-\end{itemize}
+This structure mirrors natural language in three ways. \textbf{ICL as source discrimination}: the model must use early tokens to identify the generating process, analogous to topic/style adaptation. \textbf{Covariate shift}: different components have different token distributions, requiring in-context adaptation. \textbf{Hierarchical latent structure}: component identity is a slow variable (constant per sequence), hidden state is fast (evolves per token), mirroring the multi-scale structure of language.
 
 \subsection{Experimental Setup}
 
-\paragraph{Model.} GPT-2 style decoder-only transformer implemented with TransformerLens~\cite{nanda2022transformerlens}. Phase 1 (single Mess3): 3 layers, $d_{\text{model}} = 64$, 4 heads. Phase 2 (non-ergodic mixture): 4 layers, $d_{\text{model}} = 128$, 4 heads. Pre-norm (LayerNorm), learned positional embeddings, ReLU activation. Vocabulary: $\{$BOS, 0, 1, 2$\}$ (4 tokens).
+\paragraph{Model.} GPT-2 style decoder-only transformer via TransformerLens~\cite{nanda2022transformerlens}. Phase 1 (single Mess3): 3 layers, $d_{\text{model}}=64$, 4 heads. Phase 2 (mixture): 4 layers, $d_{\text{model}}=128$, 4 heads. Pre-norm, learned positional embeddings, vocabulary $\{$BOS, 0, 1, 2$\}$.
 
-\paragraph{Training.} Next-token cross-entropy loss with Adam ($\text{lr} = 5 \times 10^{-4}$, no weight decay). Fresh batch of 8192 sequences generated on-the-fly at each step (no fixed dataset). Context length: 16 tokens + BOS. Phase 1: 10K steps. Phase 2: 20K steps.
+\paragraph{Training.} Next-token CE loss, Adam ($\text{lr}=5\times10^{-4}$, no weight decay). Fresh batches of 8192 sequences generated on-the-fly. Context: 16 tokens + BOS. Phase 1: 10K steps, Phase 2: 20K steps.
 
-\paragraph{Bayes-optimal baseline.} We compute the Bayes-optimal cross-entropy at each context position via Monte Carlo sampling: this is the CE achieved by a perfect Bayesian observer who maintains exact belief states. For the mixture, we compute both the \emph{oracle} baseline (knows the component identity) and the \emph{Bayesian} baseline (must infer it from observations).
+\paragraph{Baselines.} Bayes-optimal CE at each position via Monte Carlo: both \emph{oracle} (knows component) and \emph{Bayesian} (infers component from observations).
 
-\paragraph{Analysis methods.} (1) Cumulative explained variance (CEV) of residual stream activations via PCA. (2) Linear regression from activations to ground-truth belief states ($R^2$, RMSE). (3) Meta-belief regression (posterior over components). (4) Per-position and per-layer probing to track synchronization dynamics. (5) Attention pattern analysis.
+\paragraph{Analysis.} (1) CEV via PCA, (2) linear regression to belief states ($R^2$), (3) meta-belief regression, (4) per-position/layer probing for synchronization dynamics, (5) attention patterns.

@@ -1,15 +1,9 @@
 \section{Discussion}
 
-\paragraph{Non-ergodicity as the heart of in-context learning.} The non-ergodic Mess3 mixture provides a minimal, analytically tractable model of in-context learning. The key insight is that non-ergodicity \emph{forces} the model to perform hierarchical inference: it cannot achieve low loss without first identifying the source. This is precisely the situation language models face---they must identify the ``regime'' (topic, style, task, speaker) before they can predict well. Our setup strips this to its mathematical essence.
+\paragraph{Non-ergodicity forces hierarchical inference.} The model cannot achieve low loss without first identifying the source. This mirrors how LLMs must identify the regime (topic, style, task) before predicting well.
 
-\paragraph{Block-diagonal vs tensor-product structure.} The joint transition operator of our mixture is block-diagonal, not a tensor product. This means the standard FWH does not directly apply. Yet we observe that the model still learns a partially factored representation, suggesting that the factoring inductive bias extends beyond the conditionally-independent case. This is consistent with the FWH acting as a ``representational attractor'' that models approach even when exact factoring is not achievable.
+\paragraph{Block-diagonal vs tensor-product.} The joint operator is block-diagonal, not tensor-product, so standard FWH does not directly apply. Yet we observe partial factoring, suggesting the factoring inductive bias extends beyond conditionally-independent processes and acts as a ``representational attractor.''
 
-\paragraph{Residual stream as belief space.} The residual stream naturally serves as a space for representing beliefs. Since it has no privileged basis, the geometric arrangement of activations encodes similarity of predictions: nearby activations make similar forecasts about the future. The factored structure we observe means the model has discovered that some dimensions of prediction (source identity) are independent of others (within-source state), and has allocated orthogonal subspaces accordingly.
+\paragraph{Residual stream as belief space.} The residual stream has no privileged basis; geometric arrangement encodes prediction similarity. Factored structure means the model discovered that source identity and within-source state are independent dimensions of prediction, allocating orthogonal subspaces.
 
-\paragraph{Limitations and future work.}
-\begin{itemize}
-    \item Our model is small (3--4 layers, 64--128 dimensions). Scaling to larger models could reveal whether the geometric structures become sharper or qualitatively different.
-    \item Our components are static within sequences. Slowly drifting or switching parameters would test how the model handles non-stationary non-ergodicity.
-    \item We use the same token alphabet across components. A natural extension is to consider processes with shared and component-specific tokens, creating a richer factorization structure.
-    \item Connecting the attention-based meta-synchronization mechanism to induction heads \cite{olsson2022context} could reveal whether the same circuits serve both in-context learning tasks.
-\end{itemize}
+\paragraph{Limitations.} Small model (3--4 layers); static components (no drift/switching); same token alphabet across components. Extensions: slowly drifting parameters, shared/component-specific tokens, connections to induction heads~\cite{olsson2022context}.
