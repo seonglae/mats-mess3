@@ -1,0 +1,47 @@
+\section{Mess3 Transition Matrices}
+\label{app:mess3}
+
+With $\beta = (1-\alpha)/2$ and $y = 1-2x$:
+\begin{align}
+T^{(0)} &= \begin{pmatrix} \alpha y & \beta x & \beta x \\ \alpha x & \beta y & \beta x \\ \alpha x & \beta x & \beta y \end{pmatrix} \\
+T^{(1)} &= \begin{pmatrix} \beta y & \alpha x & \beta x \\ \beta x & \alpha y & \beta x \\ \beta x & \alpha x & \beta y \end{pmatrix} \\
+T^{(2)} &= \begin{pmatrix} \beta y & \beta x & \alpha x \\ \beta x & \beta y & \alpha x \\ \beta x & \beta x & \alpha y \end{pmatrix}
+\end{align}
+
+The net transition matrix is:
+\begin{equation}
+T = T^{(0)} + T^{(1)} + T^{(2)} = \begin{pmatrix} 1-2x & x & x \\ x & 1-2x & x \\ x & x & 1-2x \end{pmatrix}
+\end{equation}
+with uniform stationary distribution $\bpi = [1/3, 1/3, 1/3]$ and non-trivial eigenvalue $\zeta = 1 - 3x$.
+
+The emission probability $P(z \mid s) = \sum_j T^{(z)}_{sj}$ gives the entropy rate:
+\begin{equation}
+H = -\sum_{s=1}^{3} \frac{1}{3} \sum_{z=0}^{2} P(z|s) \log P(z|s)
+\end{equation}
+
+\section{Bayes-Optimal Loss Derivation}
+\label{app:bayes}
+
+The Bayes-optimal loss at position $t$ is the cross-entropy achieved by a predictor maintaining exact belief states:
+\begin{equation}
+\text{CE}(t) = \E_{z_{1:t}} \left[ -\log P(z_t \mid z_{1:t-1}) \right]
+\end{equation}
+where $P(z_t \mid z_{1:t-1}) = \veta^{(z_{1:t-1})} T^{(z_t)} \mathbf{1}$.
+
+For the non-ergodic mixture, we compute two baselines:
+\begin{itemize}
+    \item \textbf{Oracle}: knows the component, uses component-specific transition matrices.
+    \item \textbf{Bayesian}: must infer the component, uses the mixture prediction $P(z_t \mid z_{1:t-1}) = \sum_k P(k \mid z_{1:t-1}) \cdot P(z_t \mid z_{1:t-1}, k)$.
+\end{itemize}
+The gap between oracle and Bayesian baselines quantifies the cost of not knowing the component identity.
+
+\section{Code}
+\label{app:code}
+
+All code is available at: \texttt{[GitHub repo URL]}. The implementation uses PyTorch with TransformerLens for activation extraction. Key files:
+\begin{itemize}
+    \item \texttt{src/mess3.py}: Mess3 process generation and belief computation
+    \item \texttt{src/bayes\_optimal.py}: Bayes-optimal loss computation
+    \item \texttt{src/sync\_analysis.py}: Synchronization dynamics analysis
+    \item \texttt{run.py}: Main experiment script
+\end{itemize}

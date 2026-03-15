@@ -1,0 +1,31 @@
+\section{Background}
+
+\subsection{The Mess3 Process}
+
+Mess3 is a 3-state nonunifilar HMM emitting tokens $z \in \{0, 1, 2\}$ from hidden states $s \in \{1, 2, 3\}$. It is parameterized by emission clarity $\alpha \in [0,1]$ and state persistence $x \in (0, 0.5]$, with $\beta = (1-\alpha)/2$ and $y = 1-2x$. The labeled transition matrices $T^{(z)}$ have entries $T^{(z)}_{ij} = P(\text{emit } z, \text{go to } j \mid \text{state } i)$; see Appendix~\ref{app:mess3} for the full definition.
+
+Key properties: (1) The process is \emph{nonunifilar}---observing a token does not uniquely determine the state transition, so optimal prediction requires tracking a belief distribution over hidden states. (2) The set of reachable belief states forms a \emph{Sierpinski gasket} in the 2-simplex \cite{riechers2018spectral}. (3) The net transition matrix $T = \sum_z T^{(z)}$ has eigenvalue $\zeta = 1 - 3x$, controlling the exponential decay rate of belief corrections with context distance.
+
+The entropy rate $H = -\sum_s \pi(s) \sum_z P(z|s) \log P(z|s)$, where $\pi(s) = 1/3$ is the uniform stationary distribution, gives the theoretical lower bound on cross-entropy loss for an observer who knows the hidden state perfectly.
+
+\subsection{Belief State Geometry in Transformers}
+
+Shai et al.~\cite{shai2024transformers} showed that transformers trained on next-token prediction linearly represent belief states in their residual stream. The belief (predictive vector) after context $z_{1:t}$ is:
+\begin{equation}
+    \veta^{(z_{1:t})} = \frac{\veta^{(\varnothing)} T^{(z_1)} \cdots T^{(z_t)}}{\veta^{(\varnothing)} T^{(z_1)} \cdots T^{(z_t)} \mathbf{1}}
+\end{equation}
+where $\veta^{(\varnothing)} = \bpi = [\frac{1}{3}, \frac{1}{3}, \frac{1}{3}]$. Two contexts with identical predictive vectors make identical predictions about all future tokens.
+
+Piotrowski et al.~\cite{piotrowski2025constrained} showed that transformers implement a \emph{constrained} approximation to Bayesian filtering:
+\begin{equation}
+    r_1(z_{1:d}) = \bpi + \sum_{s=1}^{d} (\bpi T^{z_s} T^{d-s} - \bpi)
+\end{equation}
+Each correction term decays as $\zeta^{d-s}$, reflecting the parallel (non-sequential) nature of attention. This is the best achievable approximation given that attention processes all positions simultaneously.
+
+\subsection{Factored World Hypothesis}
+
+Shai et al.~\cite{shai2026factored} demonstrated that transformers have an inductive bias toward \emph{factored representations}: when the data-generating process admits conditionally independent factors, the model represents each factor in an orthogonal subspace of the residual stream. For $N$ factors with latent dimensions $d_1, \ldots, d_N$, the factored representation requires only $\sum_n (d_n - 1)$ dimensions instead of $\prod_n d_n - 1$ (joint)---an exponential reduction. Remarkably, this factoring persists even when it sacrifices predictive fidelity, revealing a genuine inductive bias rather than mere capacity optimization.
+
+\subsection{In-Context Learning as Source Discrimination}
+
+Non-ergodicity is believed to be ``at the heart of in-context learning'' \cite{shai2026factored}. When a transformer encounters the beginning of a sequence, it must use early observations to determine which process (source, topic, style) is active---this is structurally identical to in-context learning in large language models. The hierarchical structure of our setup (identify source, then predict within source) is a minimal model of this ubiquitous phenomenon. In-context learning and activation steering can be understood as the same mechanism: both modify the model's belief state about latent concepts, operating additively in log-belief space.
