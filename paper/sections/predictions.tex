@@ -7,7 +7,7 @@ The joint state space $(k, s) \in \{1,\ldots,K\} \times \{1,2,3\}$ has $3K$ stat
 \begin{equation}
     P(k, s \mid z_{1:t}) = P(k \mid z_{1:t}) \cdot P(s \mid k, z_{1:t})
 \end{equation}
-The meta-belief $P(k \mid z_{1:t})$ is the posterior over components; $P(s \mid k, z_{1:t})$ is the within-component belief. The joint transition operator is block-diagonal: $T^{(z)} = \bigoplus_k P(k) T_k^{(z)}$. However, $k$ is static: after sufficient context $P(k \mid z_{1:t})$ concentrates on the true component.
+The meta-belief $P(k \mid z_{1:t})$ is the posterior over components; $P(s \mid k, z_{1:t})$ is the within-component belief. The joint transition operator is block-diagonal: $T^{(z)} = \bigoplus_k T_k^{(z)}$, with $P(k)$ entering only through the prior/posterior update. However, $k$ is static: after sufficient context $P(k \mid z_{1:t})$ concentrates on the true component.
 
 The meta-belief evolves as $P(k \mid z_{1:t}) \propto P(k) \prod_{\tau=1}^{t} P(z_\tau \mid z_{1:\tau-1}, k)$, where concentration rate depends on KL divergence between component predictive distributions.
 

@@ -4,7 +4,7 @@
 
 We construct $K$ Mess3 processes with distinct parameters $\{(\alpha_k, x_k)\}_{k=1}^K$. Each training sequence is generated entirely by one component chosen uniformly; the model observes only tokens, not the component identity.
 
-We choose components with well-separated entropy rates $H_k$ and spectral gaps $\zeta_k = 1-3x_k$:
+We choose components with well-separated entropy rates $H_k$ and subdominant eigenvalues $\zeta_k = 1-3x_k$:
 
 \begin{table}[h]
 \centering
@@ -18,7 +18,7 @@ C1 & 0.85 & 0.05 & 0.69 & 0.85 \\
 C2 & 0.65 & 0.15 & 1.03 & 0.55 \\
 \bottomrule
 \end{tabular}
-\caption{Mess3 components. $H_k$: entropy rate (minimum CE). $\zeta_k$: spectral gap (belief convergence rate). C0 is highly predictable with slow mixing; C2 is nearly uniform with fast mixing.}
+\caption{Mess3 components. $H_k$: entropy rate (minimum CE). $\zeta_k$: subdominant eigenvalue (controls belief convergence rate). C0 is highly predictable with slow mixing; C2 is nearly uniform with fast mixing.}
 \label{tab:components}
 \end{table}
 
@@ -31,7 +31,7 @@ This structure mirrors natural language in three ways. \textbf{ICL as source dis
 
 \paragraph{Model.} GPT-2 style decoder-only transformer via TransformerLens~\cite{nanda2022transformerlens}. Phase 1 (single Mess3): 3 layers, $d_{\text{model}}=64$, 4 heads. Phase 2 (mixture): 4 layers, $d_{\text{model}}=128$, 4 heads. Pre-norm, learned positional embeddings, vocabulary $\{$BOS, 0, 1, 2$\}$.
 
-\paragraph{Training.} Next-token CE loss, Adam ($\text{lr}=5\times10^{-4}$, no weight decay). Fresh batches of 8192 sequences generated on-the-fly. Context: 16 tokens + BOS. Phase 1: 10K steps, Phase 2: 20K steps.
+\paragraph{Training.} Next-token CE loss, Adam ($\text{lr}=5\times10^{-4}$, no weight decay). Fresh batches of 8192 sequences generated on-the-fly. Context: 16 tokens + BOS. Phase 1: 10K steps, Phase 2: 5K steps.
 
 \paragraph{Baselines.} Bayes-optimal CE at each position via Monte Carlo: both \emph{oracle} (knows component) and \emph{Bayesian} (infers component from observations).
 

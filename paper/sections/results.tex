@@ -7,7 +7,7 @@ We first verify that our setup reproduces known results: a transformer trained o
 
 The model (3 layers, $d_{\text{model}} = 64$) was trained for 10K steps. Training loss converged to $\sim 0.82$ nats, matching the Bayes-optimal CE of $0.82$ nats (computed via Monte Carlo). The entropy rate is $H = 0.69$ nats; the gap reflects the cost of imperfect belief tracking from finite context (16 tokens).
 
-Linear regression (held-out, 80/20 split) from the final-layer residual stream to ground-truth belief states achieves $R^2 = 0.989$. Layer-wise R$^2$ improves monotonically: $L0 = 0.984$, $L1 = 0.987$, $L2 = 0.989$, consistent with progressive belief refinement. The recovered geometry (Figure~\ref{fig:phase1_gasket}) clearly shows the Sierpinski gasket structure.
+Linear regression (held-out, 80/20 split) from the final-layer residual stream to ground-truth belief states achieves $R^2 = 0.989$ (aggregated across all context positions). Layer-wise R$^2$ improves monotonically: $L0 = 0.984$, $L1 = 0.987$, $L2 = 0.989$, consistent with progressive belief refinement. The recovered geometry (Figure~\ref{fig:phase1_gasket}) clearly shows the Sierpinski gasket structure.
 
 \begin{figure}[h]
 \centering
@@ -20,7 +20,7 @@ Over training, effective dimensionality (95\% CEV) decreases monotonically from 
 
 \subsection{Phase 2: Non-Ergodic Mixture}
 
-We train a larger model (4 layers, $d_{\text{model}} = 128$) on the 3-component non-ergodic mixture (Table~\ref{tab:components}) for 5K steps.
+We train a larger model (4 layers, $d_{\text{model}} = 128$) on the 3-component non-ergodic mixture (Table~\ref{tab:components}) for 5K steps (loss converged by step $\sim$2K).
 
 \subsubsection{Belief Regression}
 
