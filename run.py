@@ -211,8 +211,16 @@ def train_and_analyze(
         json.dump(metrics, f)
     with open(exp_dir / "pca_history.json", "w") as f:
         json.dump([{k: v.tolist() if isinstance(v, np.ndarray) else v for k, v in e.items()} for e in pca_history], f)
+    def _to_serializable(obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, dict):
+            return {k: _to_serializable(v) for k, v in obj.items()}
+        if isinstance(obj, (np.float64, np.float32)):
+            return float(obj)
+        return obj
     with open(exp_dir / "bayes_optimal.json", "w") as f:
-        json.dump(bayes_info, f, indent=2)
+        json.dump(_to_serializable(bayes_info), f, indent=2)
     with open(exp_dir / "per_position_loss.json", "w") as f:
         json.dump(per_pos_losses, f)
 
