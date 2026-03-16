@@ -12,6 +12,8 @@ We chose synchronization dynamics because it directly probes the hierarchical st
 \label{fig:layer_probe}
 \end{figure}
 
-This is surprising: we predicted component identification before belief refinement (Prediction 3), but the model maintains parallel belief tracks for all components, with the correct track becoming dominant as meta-synchronization sharpens. This is consistent with the constrained belief update: attention corrections are valid regardless of which component is active.
+This is surprising: we predicted component identification before belief refinement (Prediction 3), but the model maintains parallel belief tracks for all components, with the correct track becoming dominant as meta-synchronization sharpens across layers. This is consistent with the constrained belief update: attention corrections are valid regardless of which component is active.
+
+\paragraph{Position-wise probing.} The position-wise meta-belief $R^2$ shows a different pattern: it is near-perfect at positions 2--4 ($R^2 \approx 1.0$) and gradually \emph{decreases} to $0.94$ by position 16. This occurs because early positions have only 3 possible belief states (one per token value), making linear separation trivial. As context grows, belief geometry becomes richer and the linear probe faces a harder task. The meaningful dimension of meta-synchronization is therefore \emph{across layers} (where it genuinely emerges), not across positions.
 
 \paragraph{What we would do with more time.} (1) Causal interventions: perturb the component-identity direction and verify factored independence. (2) Scaling with $K$: test whether dimensionality follows $K{+}1$. (3) GHMM extension: add Bloch Walk components via belief-state-based generation. (4) Training dynamics: track when separated vs.\ factored geometries emerge, testing whether the FWH attractor applies to block-diagonal structure.
