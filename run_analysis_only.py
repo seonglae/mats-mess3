@@ -80,7 +80,7 @@ def main():
         optimizer = torch.optim.Adam(model.parameters(), lr=5e-4, weight_decay=0)
         rng = np.random.default_rng(42)
         model.train()
-        for step in range(1, 20001):
+        for step in range(1, 5001):
             input_ids, _, _ = generate_batch(8192, SEQ_LENGTH, COMPONENTS, rng)
             input_ids = input_ids.to(DEVICE)
             logits = model(input_ids)
@@ -92,7 +92,7 @@ def main():
             loss.backward()
             optimizer.step()
             if step % 500 == 0:
-                print(f"  Step {step}/20000, loss={loss.item():.4f}")
+                print(f"  Step {step}/5000, loss={loss.item():.4f}")
         torch.save(model.state_dict(), model_path)
         print(f"Saved model to {model_path}")
 

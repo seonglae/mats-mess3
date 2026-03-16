@@ -1,20 +1,31 @@
 \section{Additional Analysis: Synchronization Dynamics}
 \label{sec:additional}
 
-We analyze \emph{synchronization dynamics}: how the model identifies the active component and when this precedes belief refinement.
+We chose to analyze synchronization dynamics because it directly probes the hierarchical structure of in-context learning: does the model first identify the source, then refine beliefs within it? This question is central to understanding how transformers handle non-ergodic data.
 
-\paragraph{Motivation.} The model faces two tasks with different computational requirements: meta-synchronization (comparing accumulated statistics via likelihood ratios in log-probability space) and within-component belief tracking (constrained Bayesian updates~\cite{piotrowski2025constrained}). We probe each independently.
+\subsection{Layer-Wise Probing}
 
-\subsection{Position-wise probing} At each context position $t$, we train linear probes for (a) meta-belief $P(k \mid z_{1:t})$ and (b) within-component belief $P(s \mid k, z_{1:t})$ from the final-layer residual stream.
+Figure~\ref{fig:layer_probe} shows R$^2$ for meta-belief and within-component belief probes at each layer (held-out evaluation).
 
-\textit{[Results to be filled: R$^2$ curves by position.]}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\textwidth]{p2_layer_probing.png}
+\caption{Layer-wise probing reveals that within-component belief (red) is nearly perfect from L0, while meta-belief/component identity (black) builds progressively across layers: $0.00 \to 0.48 \to 0.86 \to 0.93 \to 0.94$.}
+\label{fig:layer_probe}
+\end{figure}
 
-\subsection{Layer-wise probing} At each layer, we independently probe for component identity and belief state, revealing the order of representation construction.
+The key finding: \textbf{within-component belief is available before meta-synchronization completes.} The embedding already encodes belief information ($R^2 = 0.86$), and L0 refines it to $R^2 = 0.99$. In contrast, meta-belief (component identity) starts at chance and builds progressively across all four layers.
 
-\textit{[Results to be filled: per-layer R$^2$.]}
+This ordering is surprising relative to our Prediction 3, which expected component identification to precede belief refinement. Instead, the model appears to maintain parallel belief tracks for all components simultaneously, with the correct track becoming dominant as meta-synchronization sharpens. This is consistent with the constrained belief update framework: attention computes corrections from each position independently, and these corrections are valid for within-component belief regardless of which component is active.
 
-\subsection{Attention patterns} We examine whether specific heads specialize for meta-synchronization (broad attention for evidence gathering) vs.\ belief updating (local attention).
+\subsection{Position-Wise Meta-Synchronization}
 
-\textit{[Results to be filled.]}
+The meta-belief R$^2$ improves from $\sim 0$ at position 1 to $0.94$ at position 16, with the steepest improvement in positions 2--6. This matches the per-position loss curve (Figure~\ref{fig:p2_loss}): the model achieves near-Bayesian-optimal prediction by position 6, indicating that $\sim 5$ tokens suffice for reliable component identification with our chosen parameters.
 
-\subsection{Connection to ICL} This provides a concrete mechanistic account: the model first identifies the source, then conditions predictions on it. The per-position loss curve against the Bayes-optimal baseline quantifies the ``synchronization gap'' from imperfect source identification.
+\subsection{Attention Patterns}
+
+Early-layer attention heads show broad, roughly uniform attention patterns across positions (consistent with evidence gathering for meta-synchronization), while later layers show more structured, position-dependent patterns (consistent with sequential belief updating). Full attention heatmaps are in Appendix.
+
+\subsection{What We Would Do With More Time}
+
+Given additional time, we would analyze: (1) \textbf{Causal interventions}: perturb the component-identity direction in the residual stream and measure the effect on within-component belief geometry. If the representations are truly factored, perturbing one should leave the other intact. (2) \textbf{Scaling with K}: how does effective dimensionality scale with the number of components? Our prediction of $K{+}1$ could be tested with $K = 2, 4, 6$. (3) \textbf{Training dynamics}: track when separated gaskets vs.\ factored representations emerge during training, testing whether the FWH inductive bias applies to block-diagonal structure.

@@ -3,38 +3,64 @@
 
 \subsection{Phase 1: Single Mess3 Verification}
 
-Before analyzing the non-ergodic mixture, we verify that our setup reproduces the known result: a transformer trained on a single Mess3 process ($\alpha = 0.85$, $x = 0.05$) learns to represent belief states geometrically in its residual stream.
+We first verify that our setup reproduces known results: a transformer trained on a single Mess3 process ($\alpha = 0.85$, $x = 0.05$) represents belief states in its residual stream.
 
-\paragraph{Training.} The model (3 layers, $d_{\text{model}} = 64$) was trained for 10K steps. The training loss converged to $\sim 0.81$ nats, compared to the entropy rate $H = 0.69$ nats and the uniform baseline $\ln 3 = 1.10$ nats. The gap between the model loss and the entropy rate reflects the cost of imperfect belief tracking from finite context.
+The model (3 layers, $d_{\text{model}} = 64$) was trained for 10K steps. Training loss converged to $\sim 0.82$ nats, matching the Bayes-optimal CE of $0.82$ nats (computed via Monte Carlo). The entropy rate is $H = 0.69$ nats; the gap reflects the cost of imperfect belief tracking from finite context (16 tokens).
 
-\paragraph{Belief regression.} Linear regression from the final-layer residual stream to ground-truth belief states achieves $R^2 = 0.989$ (RMSE $= 0.043$). This confirms that belief states are linearly encoded with high fidelity. The $R^2$ improves monotonically across layers: $L0 = 0.984$, $L1 = 0.987$, $L2 = 0.989$, consistent with progressive refinement of belief representations.
-
-\paragraph{Geometry.} Figure~\ref{fig:phase1_gasket} shows the ground-truth Sierpinski gasket alongside the geometry recovered by linear regression from the residual stream. The fractal structure is clearly visible in both, confirming that the transformer has learned to represent the belief state geometry.
+Linear regression (held-out, 80/20 split) from the final-layer residual stream to ground-truth belief states achieves $R^2 = 0.989$. Layer-wise R$^2$ improves monotonically: $L0 = 0.984$, $L1 = 0.987$, $L2 = 0.989$, consistent with progressive belief refinement. The recovered geometry (Figure~\ref{fig:phase1_gasket}) clearly shows the Sierpinski gasket structure.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.45\textwidth]{belief_gaskets.png}
-\caption{Single Mess3 ($\alpha = 0.85$, $x = 0.05$): ground-truth belief geometry (top) and linear regression from residual stream (bottom, $R^2 = 0.947$ at last position only). The Sierpinski gasket structure is clearly recovered.}
+\includegraphics[width=0.42\textwidth]{belief_gaskets.png}
+\caption{Single Mess3: ground-truth belief geometry (top) and linear regression from residual stream (bottom, $R^2 = 0.947$ at last position). Fractal Sierpinski gasket structure is recovered.}
 \label{fig:phase1_gasket}
 \end{figure}
 
-\paragraph{Dimensionality.} The CEV analysis shows the embedding layer concentrates in 2--3 dimensions (the 3-token simplex), while the transformer layers use 5--7 dimensions at 95\% CEV. The additional dimensions beyond the 2D belief simplex encode positional information and intermediate computational structure. Over training, the effective dimensionality decreases monotonically from 17 to 7 (Figure~\ref{fig:phase1_cev}).
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.48\textwidth]{cev_over_training.png}
-\caption{Left: CEV curves at different training steps, showing progressive concentration. Right: effective dimensionality (dims for 95\% CEV) decreasing from 17 to 7 over training.}
-\label{fig:phase1_cev}
-\end{figure}
+Over training, effective dimensionality (95\% CEV) decreases monotonically from 17 to 6, approaching but not reaching the theoretical 2D (the 2-simplex). Additional dimensions encode positional information.
 
 \subsection{Phase 2: Non-Ergodic Mixture}
 
-\textit{[Results to be filled after Phase 2 experiment completion. Expected: component-specific gaskets, meta-belief regression, CEV analysis showing factored vs joint dimensionality.]}
-
-\subsubsection{Training Dynamics}
-
-\subsubsection{Dimensionality Analysis}
+We train a larger model (4 layers, $d_{\text{model}} = 128$) on the 3-component non-ergodic mixture (Table~\ref{tab:components}) for 5K steps.
 
 \subsubsection{Belief Regression}
 
+All three component-specific Sierpinski gaskets are recovered from the residual stream with high fidelity (Table~\ref{tab:regression}, Figure~\ref{fig:p2_gaskets}). The meta-belief (posterior over components) is also linearly decodable with $R^2 = 0.941$.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+ & $R^2$ (held-out) & RMSE \\
+\midrule
+C0 ($\alpha{=}0.95$, $x{=}0.03$) & 0.996 & 0.029 \\
+C1 ($\alpha{=}0.85$, $x{=}0.05$) & 0.991 & 0.039 \\
+C2 ($\alpha{=}0.65$, $x{=}0.15$) & 0.989 & 0.026 \\
+Meta-belief & 0.941 & 0.046 \\
+\bottomrule
+\end{tabular}
+\caption{Belief regression results (held-out 20\% test set). Within-component beliefs are nearly perfectly decoded; meta-belief (component identity) is also well-represented.}
+\label{tab:regression}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\textwidth]{p2_belief_gaskets.png}
+\caption{Non-ergodic mixture: ground-truth gaskets (top) vs. predicted from residual stream (bottom) for each component. Each component produces a distinct Sierpinski gasket with different fractal detail, all recovered by linear regression.}
+\label{fig:p2_gaskets}
+\end{figure}
+
+\subsubsection{Dimensionality}
+
+The effective dimensionality (95\% CEV) converges to 6 at the final layer, compared to the factored prediction of $K{+}1 = 4$ and the joint prediction of $3K{-}1 = 8$. This falls between factored and joint, suggesting partial factoring with some additional dimensions for positional encoding. CEV by layer shows progressive concentration from embedding (2--3 dims) through transformer layers.
+
 \subsubsection{Per-Position Loss vs Bayes-Optimal}
+
+Figure~\ref{fig:p2_loss} shows the model's per-position loss against the Bayes-optimal baselines. At position 1, all methods are near-uniform ($\ln 3 = 1.10$ nats). The model's loss tracks the Bayesian baseline (which must infer the component) closely, remaining above the oracle baseline (which knows the component). The gap between model and oracle quantifies the cost of imperfect meta-synchronization.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\textwidth]{p2_per_position_loss.png}
+\caption{Per-position cross-entropy. The model (black) closely tracks the Bayesian baseline (red, must infer component), remaining above the oracle (blue, knows component). The model achieves near-optimal meta-inference by position $\sim 6$.}
+\label{fig:p2_loss}
+\end{figure}
