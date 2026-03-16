@@ -35,13 +35,3 @@ For the non-ergodic mixture, we compute two baselines:
 \end{itemize}
 The gap between oracle and Bayesian baselines quantifies the cost of not knowing the component identity.
 
-\section{Code}
-\label{app:code}
-
-All code is available at: \url{https://github.com/seonglae/mats-mess3}. The implementation uses PyTorch with TransformerLens for activation extraction. Key files:
-\begin{itemize}
-    \item \texttt{src/mess3.py}: Mess3 process generation and belief computation
-    \item \texttt{src/bayes\_optimal.py}: Bayes-optimal loss computation
-    \item \texttt{src/sync\_analysis.py}: Synchronization dynamics analysis
-    \item \texttt{run.py}: Main experiment script
-\end{itemize}
