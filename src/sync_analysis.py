@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import Ridge
 from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
 
 from .mess3 import compute_belief_states, compute_meta_beliefs
 
@@ -51,9 +52,10 @@ def position_wise_regression(
         X = activations[:, pos, :]
         Y_meta = meta_beliefs[:, tp, :]
 
+        Xt, Xe, Yt, Ye = train_test_split(X, Y_meta, test_size=0.2, random_state=42)
         reg = Ridge(alpha=1e-4)
-        reg.fit(X, Y_meta)
-        r2 = r2_score(Y_meta, reg.predict(X))
+        reg.fit(Xt, Yt)
+        r2 = r2_score(Ye, reg.predict(Xe))
         results["meta_r2"].append(float(r2))
 
         # Per-component belief at this position
@@ -66,9 +68,10 @@ def position_wise_regression(
             X_k = activations[mask, pos, :]
             Y_k = all_beliefs[k][:, tp, :]
 
+            Xkt, Xke, Ykt, Yke = train_test_split(X_k, Y_k, test_size=0.2, random_state=42)
             reg_k = Ridge(alpha=1e-4)
-            reg_k.fit(X_k, Y_k)
-            r2_k = r2_score(Y_k, reg_k.predict(X_k))
+            reg_k.fit(Xkt, Ykt)
+            r2_k = r2_score(Yke, reg_k.predict(Xke))
             results["component_r2"][k].append(float(r2_k))
 
     return results
@@ -125,9 +128,10 @@ def layer_wise_probing(
         X_meta = np.concatenate(X_meta)
         Y_meta = np.concatenate(Y_meta)
 
+        Xmt, Xme, Ymt, Yme = train_test_split(X_meta, Y_meta, test_size=0.2, random_state=42)
         reg = Ridge(alpha=1e-4)
-        reg.fit(X_meta, Y_meta)
-        results["meta_r2"].append(float(r2_score(Y_meta, reg.predict(X_meta))))
+        reg.fit(Xmt, Ymt)
+        results["meta_r2"].append(float(r2_score(Yme, reg.predict(Xme))))
 
         # Per-component belief regression
         r2_components = []
@@ -149,9 +153,10 @@ def layer_wise_probing(
             X_k = np.concatenate(X_k)
             Y_k = np.concatenate(Y_k)
 
+            Xkt, Xke, Ykt, Yke = train_test_split(X_k, Y_k, test_size=0.2, random_state=42)
             reg_k = Ridge(alpha=1e-4)
-            reg_k.fit(X_k, Y_k)
-            r2_k = r2_score(Y_k, reg_k.predict(X_k))
+            reg_k.fit(Xkt, Ykt)
+            r2_k = r2_score(Yke, reg_k.predict(Xke))
             r2_components.append(float(r2_k))
 
             if k not in results["component_r2"]:
