@@ -2,7 +2,7 @@ This is BibTeX, Version 0.99d (TeX Live 2025)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: acl_natbib.bst
-Illegal, another \bibstyle command---line 70 of file main.aux
+Illegal, another \bibstyle command---line 83 of file main.aux
  : \bibstyle
  :          {acl_natbib}
 I'm skipping whatever remains of this command
@@ -15,7 +15,7 @@ Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: references.bib
 You've used 8 entries,
             3764 wiz_defined-function locations,
-            778 strings with 7084 characters,
+            778 strings with 7117 characters,
 and the built_in function-call counts, 5410 in all, are:
 = -- 452
 > -- 288

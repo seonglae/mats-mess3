@@ -1,9 +1,9 @@
 \section{Discussion}
 
-\paragraph{Non-ergodicity forces hierarchical inference.} The model cannot achieve low loss without first identifying the source. This mirrors how LLMs must identify the regime (topic, style, task) before predicting well.
+\paragraph{Non-ergodicity forces hierarchical inference.} The model cannot achieve low loss without first identifying the source. This mirrors how LLMs must identify the active regime before predicting well within it.
 
-\paragraph{Block-diagonal vs tensor-product.} The joint operator is block-diagonal, not tensor-product, so standard FWH does not directly apply. Yet we observe partial factoring, suggesting the factoring inductive bias extends beyond conditionally-independent processes and acts as a ``representational attractor.''
+\paragraph{Block-diagonal structure.} The joint operator is block-diagonal, not tensor-product, placing our setup outside the standard FWH setting. Whether the factoring inductive bias extends to this case is an open question that our experiments address.
 
-\paragraph{Residual stream as belief space.} The residual stream has no privileged basis; geometric arrangement encodes prediction similarity. Factored structure means the model discovered that source identity and within-source state are independent dimensions of prediction, allocating orthogonal subspaces.
+\paragraph{Residual stream as belief space.} The residual stream has no privileged basis; geometric arrangement encodes prediction similarity. If the model discovers that source identity and within-source state are independent dimensions of prediction, it should allocate orthogonal subspaces accordingly.
 
-\paragraph{Limitations.} Small model (3--4 layers); static components (no drift/switching); same token alphabet across components. Extensions: slowly drifting parameters, shared/component-specific tokens, connections to induction heads~\cite{olsson2022context}.
+\paragraph{Limitations.} Small model (3--4 layers); static components (no drift or switching); same token alphabet across components. Natural extensions include slowly drifting parameters, GHMM components such as Bloch Walk (which would require belief-state-based generation rather than hidden state simulation), and connections to induction heads~\cite{olsson2022context} as a mechanism for source discrimination.

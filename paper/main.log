@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.12)  16 MAR 2026 00:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.12)  16 MAR 2026 00:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -609,7 +609,7 @@ LaTeX Font Info:    Font shape `U/lasy/b/n' in size <9> not available
 
 [2]) (./sections/results.tex
 
-<figures/belief_gaskets.png, id=182, 283.2984pt x 568.524pt>
+<figures/belief_gaskets.png, id=183, 283.2984pt x 568.524pt>
 File: figures/belief_gaskets.png Graphic file (type png)
 <use figures/belief_gaskets.png>
 Package pdftex.def Info: figures/belief_gaskets.png  used on input line 16.
@@ -617,7 +617,7 @@ Package pdftex.def Info: figures/belief_gaskets.png  used on input line 16.
 
 
 [3 <./figures/belief_gaskets.png>]
-<figures/cev_over_training.png, id=199, 1004.0712pt x 352.1958pt>
+<figures/cev_over_training.png, id=200, 1004.0712pt x 352.1958pt>
 File: figures/cev_over_training.png Graphic file (type png)
 <use figures/cev_over_training.png>
 Package pdftex.def Info: figures/cev_over_training.png  used on input line 25.
@@ -681,11 +681,11 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: C125B4997B2906659EF091AA71360A5F;4260.
  ) 
 Here is how much of TeX's memory you used:
- 15703 strings out of 473190
- 247547 string characters out of 5715800
+ 15708 strings out of 473190
+ 247551 string characters out of 5715800
  689907 words of memory out of 5000000
  38344 multiletter control sequences out of 15000+600000
- 619681 words of font info for 304 fonts, out of 8000000 for 9000
+ 619825 words of font info for 307 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  90i,14n,93p,1147b,489s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
@@ -708,7 +708,7 @@ texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2
 f-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2025/texmf-dist/fon
 ts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/u
 rw/times/utmri8a.pfb>
-Output written on main.pdf (5 pages, 474056 bytes).
+Output written on main.pdf (5 pages, 473976 bytes).
 PDF statistics:
  337 PDF objects out of 1000 (max. 8388607)
  283 compressed objects within 3 object streams

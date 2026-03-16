@@ -1,11 +1,6 @@
 \begin{thebibliography}{8}
 \providecommand{\natexlab}[1]{#1}
 
-\bibitem[{Elhage et~al.(2022)}]{elhage2022superposition}
-Nelson Elhage and 1 others. 2022.
-\newblock Toy models of superposition.
-\newblock \emph{arXiv preprint arXiv:2209.10652}.
-
 \bibitem[{Marzen and Crutchfield(2017)}]{marzen2017nearly}
 Sarah~E Marzen and James~P Crutchfield. 2017.
 \newblock Nearly maximally predictive features and their dimensions.
@@ -49,5 +44,10 @@ Adam~S Shai, Sarah~E Marzen, Lucas Teixeira, Alexander~G Oldenziel, and Paul~M
 \newblock Transformers represent belief state geometry in their residual
   stream.
 \newblock In \emph{NeurIPS}.
+
+\bibitem[{Turner et~al.(2025)}]{turner2025icl}
+Alexander~Matt Turner and 1 others. 2025.
+\newblock In-context learning and activation steering are belief updates.
+\newblock \emph{arXiv preprint arXiv:2511.00617}.
 
 \end{thebibliography}
