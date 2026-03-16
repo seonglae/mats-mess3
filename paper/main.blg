@@ -2,10 +2,6 @@ This is BibTeX, Version 0.99d (TeX Live 2025)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: acl_natbib.bst
-Illegal, another \bibstyle command---line 83 of file main.aux
- : \bibstyle
- :          {acl_natbib}
-I'm skipping whatever remains of this command
 Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
 Reallocated global_strs (elt_size=200001) to 20 items from 10.
 Reallocated glb_str_end (elt_size=4) to 20 items from 10.
@@ -15,37 +11,37 @@ Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: references.bib
 You've used 8 entries,
             3764 wiz_defined-function locations,
-            778 strings with 7117 characters,
-and the built_in function-call counts, 5410 in all, are:
-= -- 452
-> -- 288
-< -- 5
-+ -- 114
-- -- 87
-* -- 347
-:= -- 853
+            778 strings with 7245 characters,
+and the built_in function-call counts, 5716 in all, are:
+= -- 466
+> -- 334
+< -- 4
++ -- 133
+- -- 101
+* -- 383
+:= -- 895
 add.period$ -- 31
 call.type$ -- 8
-change.case$ -- 70
+change.case$ -- 75
 chr.to.int$ -- 9
 cite$ -- 8
-duplicate$ -- 327
-empty$ -- 372
-format.name$ -- 116
-if$ -- 1154
+duplicate$ -- 337
+empty$ -- 377
+format.name$ -- 130
+if$ -- 1208
 int.to.chr$ -- 1
-int.to.str$ -- 3
-missing$ -- 72
+int.to.str$ -- 2
+missing$ -- 77
 newline$ -- 43
 num.names$ -- 32
-pop$ -- 185
+pop$ -- 203
 preamble$ -- 1
-purify$ -- 60
+purify$ -- 65
 quote$ -- 0
-skip$ -- 294
+skip$ -- 303
 stack$ -- 0
 substring$ -- 124
-swap$ -- 157
+swap$ -- 169
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
@@ -54,4 +50,3 @@ warning$ -- 0
 while$ -- 26
 width$ -- 0
 write$ -- 99
-(There was 1 error message)

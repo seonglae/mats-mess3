@@ -1,6 +1,14 @@
 \begin{thebibliography}{8}
 \providecommand{\natexlab}[1]{#1}
 
+\bibitem[{Bigelow et~al.(2025)Bigelow, Wurgaft, Wang, Goodman, Ullman, Tanaka,
+  and Lubana}]{bigelow2025belief}
+Eric Bigelow, Daniel Wurgaft, YingQiao Wang, Noah Goodman, Tomer Ullman,
+  Hidenori Tanaka, and Ekdeep~Singh Lubana. 2025.
+\newblock Belief dynamics reveal the dual nature of in-context learning and
+  activation steering.
+\newblock \emph{arXiv preprint arXiv:2511.00617}.
+
 \bibitem[{Marzen and Crutchfield(2017)}]{marzen2017nearly}
 Sarah~E Marzen and James~P Crutchfield. 2017.
 \newblock Nearly maximally predictive features and their dimensions.
@@ -44,10 +52,5 @@ Adam~S Shai, Sarah~E Marzen, Lucas Teixeira, Alexander~G Oldenziel, and Paul~M
 \newblock Transformers represent belief state geometry in their residual
   stream.
 \newblock In \emph{NeurIPS}.
-
-\bibitem[{Turner et~al.(2025)}]{turner2025icl}
-Alexander~Matt Turner and 1 others. 2025.
-\newblock In-context learning and activation steering are belief updates.
-\newblock \emph{arXiv preprint arXiv:2511.00617}.
 
 \end{thebibliography}
