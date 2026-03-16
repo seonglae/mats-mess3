@@ -20,6 +20,7 @@ import torch
 from sklearn.decomposition import PCA
 from sklearn.linear_model import Ridge
 from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
 
 from src.bayes_optimal import bayes_optimal_loss_mixture, bayes_optimal_loss_single
 from src.mess3 import (
@@ -417,11 +418,12 @@ def train_and_analyze(
         X_reg = np.concatenate(X_reg, axis=0)
         Y_reg = np.concatenate(Y_reg, axis=0)
 
+        X_tr, X_te, Y_tr, Y_te = train_test_split(X_reg, Y_reg, test_size=0.2, random_state=42)
         reg = Ridge(alpha=1e-4)
-        reg.fit(X_reg, Y_reg)
-        Y_pred = reg.predict(X_reg)
-        rmse = np.sqrt(np.mean((Y_reg - Y_pred) ** 2))
-        r2 = r2_score(Y_reg, Y_pred)
+        reg.fit(X_tr, Y_tr)
+        Y_pred = reg.predict(X_te)
+        rmse = np.sqrt(np.mean((Y_te - Y_pred) ** 2))
+        r2 = r2_score(Y_te, Y_pred)
         reg_results[f"component_{k}"] = {"alpha": alpha, "x": x_param, "rmse": rmse, "r2": r2}
         print(f"  C{k} (a={alpha}, x={x_param}): R2={r2:.4f}, RMSE={rmse:.4f}")
 
@@ -438,11 +440,12 @@ def train_and_analyze(
         X_meta = np.concatenate(X_meta, axis=0)
         Y_meta = np.concatenate(Y_meta, axis=0)
 
+        Xm_tr, Xm_te, Ym_tr, Ym_te = train_test_split(X_meta, Y_meta, test_size=0.2, random_state=42)
         reg_m = Ridge(alpha=1e-4)
-        reg_m.fit(X_meta, Y_meta)
-        Y_meta_pred = reg_m.predict(X_meta)
-        r2_meta = r2_score(Y_meta, Y_meta_pred)
-        rmse_meta = np.sqrt(np.mean((Y_meta - Y_meta_pred) ** 2))
+        reg_m.fit(Xm_tr, Ym_tr)
+        Y_meta_pred = reg_m.predict(Xm_te)
+        r2_meta = r2_score(Ym_te, Y_meta_pred)
+        rmse_meta = np.sqrt(np.mean((Ym_te - Y_meta_pred) ** 2))
         reg_results["meta_belief"] = {"r2": r2_meta, "rmse": rmse_meta}
         print(f"  Meta-belief: R2={r2_meta:.4f}, RMSE={rmse_meta:.4f}")
 
@@ -472,14 +475,15 @@ def train_and_analyze(
         axes[0, k].set_aspect("equal")
         axes[0, k].set_title(f"True C{k} (a={alpha}, x={x_param})")
 
-        # Predicted gasket (from regression)
+        # Predicted gasket (from regression, held-out)
         comp_acts_last = acts_last[mask, -1, :]
+        a_tr, a_te, b_tr, b_te = train_test_split(comp_acts_last, b, test_size=0.2, random_state=42)
         reg = Ridge(alpha=1e-4)
-        reg.fit(comp_acts_last, b)
-        b_pred = np.clip(reg.predict(comp_acts_last), 0, 1)
+        reg.fit(a_tr, b_tr)
+        b_pred = np.clip(reg.predict(a_te), 0, 1)
         b_pred /= b_pred.sum(axis=1, keepdims=True)
         xy_pred = b_pred[:, 0:1] * v0 + b_pred[:, 1:2] * v1 + b_pred[:, 2:3] * v2
-        r2_last = r2_score(b, b_pred)
+        r2_last = r2_score(b_te, b_pred)
         axes[1, k].scatter(xy_pred[:, 0], xy_pred[:, 1], s=0.5, alpha=0.3)
         triangle2 = plt.Polygon([v0, v1, v2], fill=False, edgecolor="gray")
         axes[1, k].add_patch(triangle2)
@@ -513,9 +517,10 @@ def train_and_analyze(
                     Y_r.append(beliefs[:, tp, :])
             X_r = np.concatenate(X_r)
             Y_r = np.concatenate(Y_r)
+            Xr_tr, Xr_te, Yr_tr, Yr_te = train_test_split(X_r, Y_r, test_size=0.2, random_state=42)
             reg = Ridge(alpha=1e-4)
-            reg.fit(X_r, Y_r)
-            r2s[f"C{k}"] = r2_score(Y_r, reg.predict(X_r))
+            reg.fit(Xr_tr, Yr_tr)
+            r2s[f"C{k}"] = r2_score(Yr_te, reg.predict(Xr_te))
         layer_r2[short] = r2s
         print(f"  {short}: {r2s}")
 
