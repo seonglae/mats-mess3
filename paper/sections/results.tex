@@ -3,33 +3,18 @@
 
 \subsection{Phase 1: Single Mess3 Verification}
 
-We first verify that our setup reproduces known results: a transformer trained on a single Mess3 process ($\alpha = 0.85$, $x = 0.05$) represents belief states in its residual stream.
-
-The model (3 layers, $d_{\text{model}} = 64$) was trained for 10K steps. Training loss converged to $\sim 0.82$ nats, matching the Bayes-optimal CE of $0.82$ nats (computed via Monte Carlo). The entropy rate is $H = 0.69$ nats; the gap reflects the cost of imperfect belief tracking from finite context (16 tokens).
-
-Linear regression (held-out, 80/20 split) from the final-layer residual stream to ground-truth belief states achieves $R^2 = 0.989$ (aggregated across all context positions). Layer-wise R$^2$ improves monotonically: $L0 = 0.984$, $L1 = 0.987$, $L2 = 0.989$, consistent with progressive belief refinement. The recovered geometry (Figure~\ref{fig:phase1_gasket}) clearly shows the Sierpinski gasket structure.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.42\textwidth]{belief_gaskets.png}
-\caption{Single Mess3: ground-truth belief geometry (top) and linear regression from residual stream (bottom, $R^2 = 0.947$ at last position). Fractal Sierpinski gasket structure is recovered.}
-\label{fig:phase1_gasket}
-\end{figure}
-
-Over training, effective dimensionality (95\% CEV) decreases monotonically from 17 to 6, approaching but not reaching the theoretical 2D (the 2-simplex). Additional dimensions encode positional information.
+We first verify our setup on a single Mess3 ($\alpha = 0.85$, $x = 0.05$; 3 layers, $d_{\text{model}} = 64$, 10K steps). Training loss converges to $0.82$ nats, matching the Bayes-optimal CE of $0.82$. Linear regression (held-out 80/20 split) from final-layer activations to belief states achieves $R^2 = 0.989$ (all positions aggregated; $R^2 = 0.947$ at the last position only). The Sierpinski gasket is clearly recovered (Figure~\ref{fig:p2_gaskets}, left column is analogous). Effective dimensionality decreases from 17 to 6 over training.
 
 \subsection{Phase 2: Non-Ergodic Mixture}
 
-We train a larger model (4 layers, $d_{\text{model}} = 128$) on the 3-component non-ergodic mixture (Table~\ref{tab:components}) for 5K steps (loss converged by step $\sim$2K).
+We train a 4-layer model ($d_{\text{model}} = 128$) on the 3-component mixture (Table~\ref{tab:components}) for 5K steps (loss converges by step $\sim$2K).
 
-\subsubsection{Belief Regression}
-
-All three component-specific Sierpinski gaskets are recovered from the residual stream with high fidelity (Table~\ref{tab:regression}, Figure~\ref{fig:p2_gaskets}). The meta-belief (posterior over components) is also linearly decodable with $R^2 = 0.941$.
+\paragraph{Belief regression.} All three component-specific gaskets are recovered with high fidelity (Table~\ref{tab:regression}). The meta-belief (posterior over components) is linearly decodable with $R^2 = 0.941$. Figure~\ref{fig:p2_gaskets} shows ground-truth vs.\ predicted gaskets.
 
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{lcccc}
+\begin{tabular}{lcc}
 \toprule
  & $R^2$ (held-out) & RMSE \\
 \midrule
@@ -39,28 +24,24 @@ C2 ($\alpha{=}0.65$, $x{=}0.15$) & 0.989 & 0.026 \\
 Meta-belief & 0.941 & 0.046 \\
 \bottomrule
 \end{tabular}
-\caption{Belief regression results (held-out 20\% test set). Within-component beliefs are nearly perfectly decoded; meta-belief (component identity) is also well-represented.}
+\caption{Belief regression (held-out 20\% test set). Within-component beliefs are near-perfectly decoded; meta-belief is also well-represented.}
 \label{tab:regression}
 \end{table}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.48\textwidth]{p2_belief_gaskets.png}
-\caption{Non-ergodic mixture: ground-truth gaskets (top) vs. predicted from residual stream (bottom) for each component. Each component produces a distinct Sierpinski gasket with different fractal detail, all recovered by linear regression.}
+\caption{Ground-truth gaskets (top) vs.\ predicted from residual stream (bottom). Each component produces a distinct Sierpinski gasket, all recovered by linear regression.}
 \label{fig:p2_gaskets}
 \end{figure}
 
-\subsubsection{Dimensionality}
+\paragraph{Dimensionality.} Effective dimensionality (95\% CEV) converges to 6, between the factored prediction ($K{+}1 = 4$) and joint prediction ($3K{-}1 = 8$). This suggests partial factoring with additional dimensions for positional encoding.
 
-The effective dimensionality (95\% CEV) converges to 6 at the final layer, compared to the factored prediction of $K{+}1 = 4$ and the joint prediction of $3K{-}1 = 8$. This falls between factored and joint, suggesting partial factoring with some additional dimensions for positional encoding. CEV by layer shows progressive concentration from embedding (2--3 dims) through transformer layers.
-
-\subsubsection{Per-Position Loss vs Bayes-Optimal}
-
-Figure~\ref{fig:p2_loss} shows the model's per-position loss against the Bayes-optimal baselines. At position 1, all methods are near-uniform ($\ln 3 = 1.10$ nats). The model's loss tracks the Bayesian baseline (which must infer the component) closely, remaining above the oracle baseline (which knows the component). The gap between model and oracle quantifies the cost of imperfect meta-synchronization.
+\paragraph{Per-position loss.} The model tracks the Bayesian baseline closely (Figure~\ref{fig:p2_loss}), remaining above the oracle baseline. The gap quantifies the cost of imperfect meta-synchronization. Near-optimal inference is achieved by position $\sim$6.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.48\textwidth]{p2_per_position_loss.png}
-\caption{Per-position cross-entropy. The model (black) closely tracks the Bayesian baseline (red, must infer component), remaining above the oracle (blue, knows component). The model achieves near-optimal meta-inference by position $\sim 6$.}
+\caption{Per-position CE: model (black) tracks Bayesian baseline (red, infers component) closely, above oracle (blue, knows component).}
 \label{fig:p2_loss}
 \end{figure}
